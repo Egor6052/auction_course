@@ -1,4 +1,3 @@
----
 ### Variant for laboratory work: 13
 ---
 
@@ -11,7 +10,6 @@ For run, going to the build directory ```cd ./NameProject```, and:
 dotnet run
 ```
 
----
 ### Installing SDK and runtime machine
 ---
 For installing SDK in Fedora Linux: 
