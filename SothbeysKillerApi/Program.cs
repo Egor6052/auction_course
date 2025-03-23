@@ -19,6 +19,8 @@ builder.Services.AddTransient<IAuctionService, DbAuctionService>();
 
 var app = builder.Build();
 
+// Console.WriteLine("Server running in http://localhost:5086/:api/v1/");
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
