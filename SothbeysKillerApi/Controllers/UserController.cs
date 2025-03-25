@@ -38,7 +38,7 @@ public class UserController : ControllerBase {
         int atIndex = request.Email.IndexOf('@');
         string local = request.Email[..atIndex];
         string domain = request.Email[(atIndex + 1)..];
-        string topLevelDomain = (domain.Split('.'))[^1];
+        string topLevelDomain = domain.Split('.')[^1];
         int minimalLengthPassword = 3;
 
 
@@ -92,12 +92,13 @@ public class UserController : ControllerBase {
         return Ok(response);
     }
 
+    // Email validation
     private static bool IsValidEmailParts(string local, string domain) {
-        // Перевіряємо, чи містять тільки дозволені символи
+        // Check if it contains only allowed characters
         bool validLocal = local.All(c => char.IsLetterOrDigit(c) || c is '.' or '-');
         bool validDomain = domain.All(c => char.IsLetterOrDigit(c) || c is '.' or '-');
 
-        // Перевіряємо, чи не починаються і не закінчуються '.' або '-'
+        // Check if they do not start or end with '.' or '-'
         bool validLocalBoundaries = !(local.StartsWith('.') || local.StartsWith('-') || local.EndsWith('.') || local.EndsWith('-'));
         bool validDomainBoundaries = !(domain.StartsWith('.') || domain.StartsWith('-') || domain.EndsWith('.') || domain.EndsWith('-'));
 
