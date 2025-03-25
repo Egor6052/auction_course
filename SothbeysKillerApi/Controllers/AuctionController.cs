@@ -19,27 +19,23 @@ public class Auction {
 
 [ApiController]
 [Route("api/v1/[controller]")]
-public class AuctionController : ControllerBase
-{
+public class AuctionController : ControllerBase {
     private readonly IAuctionService _auctionService;
 
-    public AuctionController(IAuctionService auctionService)
-    {
+    public AuctionController(IAuctionService auctionService) {
         _auctionService = auctionService;
     }
     
     [HttpGet]
     [Route("[action]")]
-    public IActionResult Past()
-    {
+    public IActionResult Past() {
         var auctions = _auctionService.GetPastAuctions();
         return Ok(auctions);
     }
     
     [HttpGet]
     [Route("[action]")]
-    public IActionResult Active()
-    {
+    public IActionResult Active() {
         var auctions = _auctionService.GetActiveAuctions();
         // code 200
         return Ok(auctions);
@@ -47,86 +43,70 @@ public class AuctionController : ControllerBase
     
     [HttpGet]
     [Route("[action]")]
-    public IActionResult Future()
-    {
+    public IActionResult Future() {
         var auctions = _auctionService.GetFutureAuctions();
         // code 200
         return Ok(auctions);
     }
 
     [HttpPost]
-    public IActionResult Create(AuctionCreateRequest request)
-    {
-        try
-        {
+    public IActionResult Create(AuctionCreateRequest request) {
+        try {
             var id = _auctionService.CreateAuction(request);
             return Ok(new { Id = id });
         }
-        catch (ArgumentException)
-        {
+        catch (ArgumentException) {
             // code 400
             return BadRequest();
         }
     }
 
     [HttpGet("{id:guid}")]
-    public IActionResult GetById(Guid id)
-    {
-        try
-        {
+    public IActionResult GetById(Guid id) {
+        try {
             var auction = _auctionService.GetAuctionById(id);
             return Ok(auction);
         }
-        catch (NullReferenceException)
-        {
+        catch (NullReferenceException) {
             // code 404
             return NotFound();
         }
     }
 
     [HttpPut("{id:guid}")]
-    public IActionResult Update(Guid id, [FromBody] AuctionUpdateRequest request)
-    {
-        if (request == null || request.Start >= request.Finish)
-        {
+    public IActionResult Update(Guid id, [FromBody] AuctionUpdateRequest request) {
+        if (request == null || request.Start >= request.Finish) {
             // code 400
             return BadRequest();
         }
-
-        try
-        {
+        
+        try {
             _auctionService.UpdateAuction(id, request);
             // code 204
             return NoContent();
         }
-        catch (NullReferenceException)
-        {
+        catch (NullReferenceException) {
             // code 404
             return NotFound();
         }
-        catch (ArgumentException)
-        {
+        catch (ArgumentException) {
             // code 400
             return BadRequest();
         }
     }
 
     [HttpDelete("{id:guid}")]
-    public IActionResult Delete(Guid id)
-    {
-        try
-        {
+    public IActionResult Delete(Guid id) {
+        try {
             _auctionService.DeleteAuction(id);
             // code 204
             return NoContent();
         }
-        catch (NullReferenceException)
-        {
+        catch (NullReferenceException) {
             // code 404
             return NotFound();
         }
-        catch (ArgumentException)
-        {
+        catch (ArgumentException) {
             // code 400
             return BadRequest();
         }
