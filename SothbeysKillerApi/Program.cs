@@ -6,7 +6,7 @@ internal class Program
     private static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-
+        // For logging
         builder.Services.AddSingleton<Logger>();
         // Add services to the container.
         builder.Services.AddControllers();
