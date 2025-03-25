@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using LoggerNamespace;
 
 namespace SothbeysKillerApi.Controllers;
 
@@ -30,6 +31,12 @@ public class User
 [Route("api/v1/[controller]")]
 public class UserController : ControllerBase {
     private static List<User> _users = [];
+    private readonly Logger _logger;
+
+    public UserController(Logger logger)
+    {
+        _logger = logger;
+    }
 
     [HttpPost]
     [Route("[action]")]
@@ -44,18 +51,31 @@ public class UserController : ControllerBase {
 
         // code 400
         if (string.IsNullOrWhiteSpace(request.Name) || request.Name.Length < 3 || request.Name.Length > 255) {
+            _logger.LogError("Invalid name in signup request - Code 400");
             return BadRequest();
-        } else if (string.IsNullOrWhiteSpace(request.Email) || _users.Any(a => a.Email == request.Email)) {
+        }
+        else if (string.IsNullOrWhiteSpace(request.Email) || _users.Any(a => a.Email == request.Email)) {
+            _logger.LogError($"Invalid or duplicate email '{request.Email}' in signup - Code 400");
             return BadRequest();
-        } else if (atIndex <= 0) {
+        }
+        else if (atIndex <= 0) {
+            _logger.LogError($"Email '{request.Email}' missing '@' - Code 400");
             return BadRequest();
-        } else if (domain.Length < 3 || !domain.Contains('.')) {
+        }
+        else if (domain.Length < 3 || !domain.Contains('.')) {
+            _logger.LogError($"Invalid domain in email '{request.Email}' - Code 400");
             return BadRequest();
-        } else if (topLevelDomain.Length < 2 || topLevelDomain.Length > 6) {
+        }
+        else if (topLevelDomain.Length < 2 || topLevelDomain.Length > 6) {
+            _logger.LogError($"Invalid top-level domain in email '{request.Email}' - Code 400");
             return BadRequest();
-        } else if (!IsValidEmailParts(local, domain)) {
+        }
+        else if (!IsValidEmailParts(local, domain)) {
+            _logger.LogError($"Invalid characters in email '{request.Email}' - Code 400");
             return BadRequest();
-        } else if (string.IsNullOrWhiteSpace(request.Password) || request.Password.Length < minimalLengthPassword) {
+        }
+        else if (string.IsNullOrWhiteSpace(request.Password) || request.Password.Length < minimalLengthPassword) {
+            _logger.LogError("Invalid password in signup request - Code 400");
             return BadRequest();
         }
 
@@ -67,7 +87,6 @@ public class UserController : ControllerBase {
         };
     
         _users.Add(user);
-
         // code 204
         return NoContent();
     }
@@ -80,9 +99,11 @@ public class UserController : ControllerBase {
 
         if (user is null) {
             // code 404
+            _logger.LogError($"User with email '{request.Email}' not found - Code 404");
             return NotFound();
         } else if (!(user.Password.Equals(request.Password))) {
             // code 401
+            _logger.LogError($"Invalid password for user '{request.Email}' - Code 401");
             return Unauthorized();
         }
 
