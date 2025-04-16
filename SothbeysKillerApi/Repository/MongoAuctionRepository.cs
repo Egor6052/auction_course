@@ -38,4 +38,39 @@ public class MongoAuctionRepository : IAuctionRepository
     {
         throw new NotImplementedException();
     }
+
+    public Task<IEnumerable<Auction>> GetPastAsync()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IEnumerable<Auction>> GetActiveAsync()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IEnumerable<Auction>> GetFutureAsync()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Auction?> GetByIdAsync(Guid id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Auction> CreateAsync(Auction entity)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Auction?> UpdateAsync(Auction entity)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task DeleteAsync(Guid id)
+    {
+        throw new NotImplementedException();
+    }
 }

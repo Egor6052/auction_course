@@ -4,7 +4,6 @@ using LoggerNamespace;
 using System.Text.RegularExpressions;
 
 namespace SothbeysKillerApi.Controllers;
-
 public record UserCreateRequest(string Name, string Email, string Password);
 public record UserSigninRequest(string Email, string Password);
 public record UserSigninResponse(Guid id, string Name, string Email);

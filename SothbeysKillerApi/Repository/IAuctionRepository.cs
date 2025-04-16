@@ -1,12 +1,14 @@
-﻿namespace SothbeysKillerApi.Repository;
+﻿using SothbeysKillerApi.Controllers;
+// using SothbeysKillerApi.Models;
 
-public interface IAuctionRepository
-{
-    IEnumerable<Auction> GetPast();
-    IEnumerable<Auction> GetActive();
-    IEnumerable<Auction> GetFuture();
-    Auction? GetById(Guid id);
-    Auction Create(Auction entity);
-    Auction? Update(Auction entity);
-    void Delete(Guid id);
+namespace SothbeysKillerApi.Repository;
+
+public interface IAuctionRepository {
+    Task<IEnumerable<Auction>> GetPastAsync();
+    Task<IEnumerable<Auction>> GetActiveAsync();
+    Task<IEnumerable<Auction>> GetFutureAsync();
+    Task<Auction?> GetByIdAsync(Guid id);
+    Task<Auction> CreateAsync(Auction entity);
+    Task<Auction?> UpdateAsync(Auction entity);
+    Task DeleteAsync(Guid id);
 }

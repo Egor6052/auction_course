@@ -10,13 +10,22 @@ namespace SothbeysKillerApi.Repository
         private readonly IDbContextTransaction _transaction;
 
         public IUserRepository UserRepository { get; }
+        public IAuctionRepository AuctionRepository { get; }
+
+        public IAuctionHistoryRepository AuctionHistoryRepository => throw new NotImplementedException();
+
+        // public IAuctionHistoryRepository AuctionHistoryRepository { get; }
+
+
 
         public EFUnitOfWork(UserDBContext userDBContext)
         {
             _userDBContext = userDBContext;
-            
+
             _transaction = _userDBContext.Database.BeginTransaction();
             UserRepository = new EFUserRepository(_userDBContext.Users, _userDBContext);
+            // AuctionRepository = new AuctionRepository(_userDBContext.Auctions, _userDBContext);
+            // AuctionHistoryRepository = new EFAuctionHistoryRepository(_userDBContext.AuctionHistories, _userDBContext);
         }
 
         public void Commit()
@@ -36,4 +45,5 @@ namespace SothbeysKillerApi.Repository
             _transaction.Rollback();
         }
     }
+
 }

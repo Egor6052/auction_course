@@ -13,6 +13,10 @@ internal class Program
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+        builder.Services.AddScoped<IAuctionService, AuctionService>();
+        // builder.Services.AddDbContext<AuctionContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+        // builder.Services.AddScoped<IAuctionRepository, AuctionRepository>();
+        builder.Services.AddScoped<IAuctionService, AuctionService>();
 
         builder.Services.AddTransient<IAuctionService, DbAuctionService>();
 

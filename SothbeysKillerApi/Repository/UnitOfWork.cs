@@ -9,6 +9,8 @@ namespace SothbeysKillerApi.Repository
         private readonly IDbTransaction _transaction;
 
         public IUserRepository UserRepository { get; }
+        public IAuctionRepository AuctionRepository { get; }
+        public IAuctionHistoryRepository AuctionHistoryRepository { get; }
 
         public UnitOfWork()
         {
@@ -18,6 +20,8 @@ namespace SothbeysKillerApi.Repository
             _transaction = _dbConnection.BeginTransaction();
 
             UserRepository = new DbUserRepostory(_dbConnection, _transaction);
+            AuctionRepository = new DbAuctionRepository(_dbConnection, _transaction);
+            // AuctionHistoryRepository = new DbAuctionHistoryRepository(_dbConnection, _transaction);
         }
 
         public void Commit()

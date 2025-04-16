@@ -1,11 +1,11 @@
-namespace SothbeysKillerApi.Repository
+namespace SothbeysKillerApi.Repository;
+
+public interface IUnitOfWork
 {
-    public interface IUnitOfWork
-    {
-        IUserRepository UserRepository { get; }
+    IAuctionRepository AuctionRepository { get; }
+    IAuctionHistoryRepository AuctionHistoryRepository { get; }
 
-        void Commit();
+    void Commit();
 
-        void Rollback();
-    }
+    void Rollback();
 }
