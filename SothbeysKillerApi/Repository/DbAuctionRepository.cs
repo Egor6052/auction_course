@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using Dapper;
 using Npgsql;
 using SothbeysKillerApi.Controllers;
@@ -7,19 +7,16 @@ namespace SothbeysKillerApi.Repository;
 
 // Unit Of Work
 
-public class DbAuctionRepository : IAuctionRepository
-{
+public class DbAuctionRepository : IAuctionRepository {
     private readonly IDbConnection _dbConnection;
     private readonly IDbTransaction _transaction;
 
-    public DbAuctionRepository(IDbConnection connection, IDbTransaction transaction)
-    {
+    public DbAuctionRepository(IDbConnection connection, IDbTransaction transaction) {
         _dbConnection = connection;
         _transaction = transaction;
     }
     
-    public IEnumerable<Auction> GetPast()
-    {
+    public IEnumerable<Auction> GetPast() {
         var query = @"select * from auctions                         
                         where finish < current_date
                         order by start desc;";
@@ -29,8 +26,7 @@ public class DbAuctionRepository : IAuctionRepository
         return auctions;
     }
 
-    public IEnumerable<Auction> GetActive()
-    {
+    public IEnumerable<Auction> GetActive() {
         var query = @"select * from auctions                         
                         where start < current_date and finish > current_date 
                         order by start desc;";
@@ -40,8 +36,7 @@ public class DbAuctionRepository : IAuctionRepository
         return auctions;
     }
 
-    public IEnumerable<Auction> GetFuture()
-    {
+    public IEnumerable<Auction> GetFuture() {
         var query = @"select * from auctions                         
                         where start > current_date
                         order by start desc;";
@@ -51,8 +46,7 @@ public class DbAuctionRepository : IAuctionRepository
         return auctions;
     }
 
-    public Auction? GetById(Guid id)
-    {
+    public Auction? GetById(Guid id) {
         var query = "select * from auctions where id = @Id;";
         
         var auction = _dbConnection.QuerySingleOrDefault<Auction>(query, new { Id = id }, transaction: _transaction);
@@ -60,8 +54,7 @@ public class DbAuctionRepository : IAuctionRepository
         return auction;
     }
 
-    public Auction Create(Auction entity)
-    {
+    public Auction Create(Auction entity) {
         var command = $@"insert into auctions (id, title, start, finish) values (@Id, @Title, @Start, @Finish) returning *;";
         
         var auction = _dbConnection.QueryFirst<Auction>(command, entity, transaction: _transaction);
@@ -69,8 +62,7 @@ public class DbAuctionRepository : IAuctionRepository
         return auction;
     }
 
-    public Auction? Update(Auction entity)
-    {
+    public Auction? Update(Auction entity) {
         var updateCommand = "update auctions set start = @Start, finish = @Finish where id = @Id;";
 
         var auction = _dbConnection.QueryFirst<Auction>(updateCommand, entity, transaction: _transaction);
@@ -78,45 +70,37 @@ public class DbAuctionRepository : IAuctionRepository
         return auction;
     }
 
-    public void Delete(Guid id)
-    {
+    public void Delete(Guid id) {
         var deleteCommand = "delete from auctions where id = @Id;";
 
         _dbConnection.ExecuteScalar(deleteCommand, new { Id = id }, transaction: _transaction);
     }
 
-    public Task<IEnumerable<Auction>> GetPastAsync()
-    {
+    public Task<IEnumerable<Auction>> GetPastAsync() {
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<Auction>> GetActiveAsync()
-    {
+    public Task<IEnumerable<Auction>> GetActiveAsync() {
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<Auction>> GetFutureAsync()
-    {
+    public Task<IEnumerable<Auction>> GetFutureAsync() {
         throw new NotImplementedException();
     }
 
-    public Task<Auction?> GetByIdAsync(Guid id)
-    {
+    public Task<Auction?> GetByIdAsync(Guid id) {
         throw new NotImplementedException();
     }
 
-    public Task<Auction> CreateAsync(Auction entity)
-    {
+    public Task<Auction> CreateAsync(Auction entity) {
         throw new NotImplementedException();
     }
 
-    public Task<Auction?> UpdateAsync(Auction entity)
-    {
+    public Task<Auction?> UpdateAsync(Auction entity) {
         throw new NotImplementedException();
     }
 
-    public Task DeleteAsync(Guid id)
-    {
+    public Task DeleteAsync(Guid id) {
         throw new NotImplementedException();
     }
 }

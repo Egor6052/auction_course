@@ -1,7 +1,5 @@
-namespace SothbeysKillerApi.Infrastructure
-{
-    public interface IChangeSaver
-    {
+namespace SothbeysKillerApi.Infrastructure {
+    public interface IChangeSaver {
         int SaveChanges();
     }
 }

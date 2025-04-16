@@ -14,6 +14,7 @@ internal class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
         builder.Services.AddScoped<IAuctionService, AuctionService>();
+        
         // builder.Services.AddDbContext<AuctionContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
         // builder.Services.AddScoped<IAuctionRepository, AuctionRepository>();
         builder.Services.AddScoped<IAuctionService, AuctionService>();

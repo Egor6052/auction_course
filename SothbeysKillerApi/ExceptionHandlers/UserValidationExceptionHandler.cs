@@ -1,14 +1,10 @@
 using Microsoft.AspNetCore.Diagnostics;
 using SothbeysKillerApi.Exceptions;
 
-namespace SothbeysKillerApi.ExceptionHandlers
-{
-    public class UserValidationExceptionHandler : IExceptionHandler
-    {
-        public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
-        {
-            if (exception is UserValidationExceprion ex)
-            {
+namespace SothbeysKillerApi.ExceptionHandlers {
+    public class UserValidationExceptionHandler : IExceptionHandler {
+        public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken) {
+            if (exception is UserValidationExceprion ex) {
                 httpContext.Response.StatusCode = 400;
 
                 await httpContext.Response

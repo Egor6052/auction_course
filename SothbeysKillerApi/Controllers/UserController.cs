@@ -8,8 +8,7 @@ public record UserCreateRequest(string Name, string Email, string Password);
 public record UserSigninRequest(string Email, string Password);
 public record UserSigninResponse(Guid id, string Name, string Email);
 
-public class User 
-{
+public class User {
     public Guid Id { get; set; }  
     public string Name { get; set; }  
     public string Email { get; set; }  

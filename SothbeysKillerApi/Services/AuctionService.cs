@@ -2,8 +2,7 @@
 
 namespace SothbeysKillerApi.Services;
 
-public interface IAuctionService
-{
+public interface IAuctionService {
     List<AuctionResponse> GetPastAuctions();
     List<AuctionResponse> GetActiveAuctions();
     List<AuctionResponse> GetFutureAuctions();
@@ -13,12 +12,10 @@ public interface IAuctionService
     void DeleteAuction(Guid id);
 }
 
-public class AuctionService : IAuctionService
-{
+public class AuctionService : IAuctionService {
     private static List<Auction> _storage = [];
 
-    public List<AuctionResponse> GetPastAuctions()
-    {
+    public List<AuctionResponse> GetPastAuctions() {
         var auctions = _storage
             .Where(a => a.Finish < DateTime.Now)
             .Select(auction => new AuctionResponse(auction.Id, auction.Title, auction.Start, auction.Finish))
@@ -28,8 +25,7 @@ public class AuctionService : IAuctionService
         return auctions;
     }
     
-    public List<AuctionResponse> GetActiveAuctions()
-    {
+    public List<AuctionResponse> GetActiveAuctions() {
         var auctions = _storage
             .Where(a => a.Start < DateTime.Now && a.Finish > DateTime.Now)
             .Select(auction => new AuctionResponse(auction.Id, auction.Title, auction.Start, auction.Finish))
@@ -39,8 +35,7 @@ public class AuctionService : IAuctionService
         return auctions;
     }
     
-    public List<AuctionResponse> GetFutureAuctions()
-    {
+    public List<AuctionResponse> GetFutureAuctions() {
         var auctions = _storage
             .Where(a => a.Start > DateTime.Now)
             .Select(auction => new AuctionResponse(auction.Id, auction.Title, auction.Start, auction.Finish))
@@ -50,8 +45,7 @@ public class AuctionService : IAuctionService
         return auctions;
     }
 
-    public Guid CreateAuction(AuctionCreateRequest request)
-    {
+    public Guid CreateAuction(AuctionCreateRequest request) {
         if (request.Title.Length < 3 || request.Title.Length > 255)
         {
             throw new ArgumentException();
@@ -80,12 +74,10 @@ public class AuctionService : IAuctionService
         return auction.Id;
     }
 
-    public AuctionResponse GetAuctionById(Guid id)
-    {
+    public AuctionResponse GetAuctionById(Guid id) {
         var auction = _storage.FirstOrDefault(a => a.Id == id);
 
-        if (auction is not null)
-        {
+        if (auction is not null) {
             var response = new AuctionResponse(auction.Id, auction.Title, auction.Start, auction.Finish);
             
             return response;
@@ -94,27 +86,22 @@ public class AuctionService : IAuctionService
         throw new NullReferenceException();
     }
 
-    public void UpdateAuction(Guid id, AuctionUpdateRequest request)
-    {
+    public void UpdateAuction(Guid id, AuctionUpdateRequest request) {
         var auction = _storage.FirstOrDefault(a => a.Id == id);
         
-        if (auction is null)
-        {
+        if (auction is null) {
             throw new NullReferenceException();
         }
 
-        if (auction.Start <= DateTime.Now)
-        {
+        if (auction.Start <= DateTime.Now) {
             throw new ArgumentException();
         }
         
-        if (request.Start < DateTime.Now)
-        {
+        if (request.Start < DateTime.Now) {
             throw new ArgumentException();
         }
 
-        if (request.Finish <= request.Start)
-        {
+        if (request.Finish <= request.Start) {
             throw new ArgumentException();
         }
 
@@ -122,21 +109,16 @@ public class AuctionService : IAuctionService
         auction.Finish = request.Finish;
     }
 
-    public void DeleteAuction(Guid id)
-    {
+    public void DeleteAuction(Guid id) {
         var auction = _storage.FirstOrDefault(a => a.Id == id);
         
-        if (auction is null)
-        {
+        if (auction is null) {
             throw new NullReferenceException();
         }
         
-        if (auction.Start <= DateTime.Now)
-        {
+        if (auction.Start <= DateTime.Now) {
             throw new ArgumentException();
         }
-
         _storage.Remove(auction);
-
     }
 }

@@ -1,7 +1,6 @@
 namespace SothbeysKillerApi.Repository;
 
-public interface IUnitOfWork
-{
+public interface IUnitOfWork {
     IAuctionRepository AuctionRepository { get; }
     IAuctionHistoryRepository AuctionHistoryRepository { get; }
 

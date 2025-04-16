@@ -1,8 +1,7 @@
 using System;
 using System.IO;
 
-namespace LoggerNamespace
-{
+namespace LoggerNamespace {
     public class Logger {
         private StreamWriter _logStream;
         private readonly string _logFilePath;

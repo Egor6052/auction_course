@@ -1,10 +1,8 @@
 ﻿using Npgsql;
 using System.Data;
 
-namespace SothbeysKillerApi.Repository
-{
-    public class UnitOfWork : IUnitOfWork, IDisposable
-    {
+namespace SothbeysKillerApi.Repository {
+    public class UnitOfWork : IUnitOfWork, IDisposable {
         private readonly IDbConnection _dbConnection;
         private readonly IDbTransaction _transaction;
 
@@ -12,8 +10,7 @@ namespace SothbeysKillerApi.Repository
         public IAuctionRepository AuctionRepository { get; }
         public IAuctionHistoryRepository AuctionHistoryRepository { get; }
 
-        public UnitOfWork()
-        {
+        public UnitOfWork() {
             _dbConnection = new NpgsqlConnection("Server=localhost;Port=5432;Database=auction_db;Username=postgres;Password=123456");
             _dbConnection.Open();
 
@@ -24,8 +21,7 @@ namespace SothbeysKillerApi.Repository
             // AuctionHistoryRepository = new DbAuctionHistoryRepository(_dbConnection, _transaction);
         }
 
-        public void Commit()
-        {
+        public void Commit() {
             try
             {
                 _transaction.Commit();
@@ -41,13 +37,11 @@ namespace SothbeysKillerApi.Repository
             }
         }
 
-        public void Rollback()
-        {
+        public void Rollback() {
             _transaction.Rollback();
         }
 
-        public void Dispose()
-        {
+        public void Dispose() {
             try
             {
                 _transaction.Rollback();

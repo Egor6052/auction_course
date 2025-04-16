@@ -2,10 +2,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using SothbeysKillerApi.Context;
 using System.Data;
 
-namespace SothbeysKillerApi.Repository
-{
-    public class EFUnitOfWork : IUnitOfWork
-    {
+namespace SothbeysKillerApi.Repository {
+    public class EFUnitOfWork : IUnitOfWork {
         private readonly UserDBContext _userDBContext;
         private readonly IDbContextTransaction _transaction;
 
@@ -18,8 +16,7 @@ namespace SothbeysKillerApi.Repository
 
 
 
-        public EFUnitOfWork(UserDBContext userDBContext)
-        {
+        public EFUnitOfWork(UserDBContext userDBContext) {
             _userDBContext = userDBContext;
 
             _transaction = _userDBContext.Database.BeginTransaction();
@@ -28,20 +25,16 @@ namespace SothbeysKillerApi.Repository
             // AuctionHistoryRepository = new EFAuctionHistoryRepository(_userDBContext.AuctionHistories, _userDBContext);
         }
 
-        public void Commit()
-        {
-            try
-            {
+        public void Commit() {
+            try {
                 _transaction.Commit();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                 _transaction.Rollback();
             }
         }
 
-        public void Rollback()
-        {
+        public void Rollback() {
             _transaction.Rollback();
         }
     }
