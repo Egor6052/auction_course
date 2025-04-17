@@ -18,7 +18,7 @@ namespace SothbeysKillerApi.Repository {
 
             UserRepository = new DbUserRepostory(_dbConnection, _transaction);
             AuctionRepository = new DbAuctionRepository(_dbConnection, _transaction);
-            // AuctionHistoryRepository = new DbAuctionHistoryRepository(_dbConnection, _transaction);
+            AuctionHistoryRepository = new DbAuctionHistoryRepository(_dbConnection, _transaction);
         }
 
         public void Commit() {
