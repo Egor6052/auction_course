@@ -1,17 +1,29 @@
 using Microsoft.EntityFrameworkCore;
 using SothbeysKillerApi.Controllers;
-using SothbeysKillerApi.Infrastructure;
 
 namespace SothbeysKillerApi.Context
 {
-    public class UserDBContext : DbContext, IChangeSaver
+    public class UserDBContext : DbContext
     {
+        public DbSet<User> Users { get; set; }
+        public DbSet<Auction> Auctions { get; set; }
+
         public UserDBContext(DbContextOptions<UserDBContext> options) : base(options)
         {
-
         }
 
-        public DbSet<User> Users { get; set; }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            // Налаштування первинних ключів
+            modelBuilder.Entity<User>().HasKey(u => u.Id);
+            modelBuilder.Entity<Auction>().HasKey(a => a.Id);
 
+            // Налаштування обмежень для Auction
+            modelBuilder.Entity<Auction>()
+                .Property(a => a.Title)
+                .HasMaxLength(255)
+                .IsRequired();
+
+        }
     }
 }

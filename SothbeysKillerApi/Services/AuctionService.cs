@@ -1,124 +1,140 @@
 ﻿using SothbeysKillerApi.Controllers;
+using SothbeysKillerApi.Exceptions;
+using SothbeysKillerApi.Repository;
 
-namespace SothbeysKillerApi.Services;
-
-public interface IAuctionService {
-    List<AuctionResponse> GetPastAuctions();
-    List<AuctionResponse> GetActiveAuctions();
-    List<AuctionResponse> GetFutureAuctions();
-    Guid CreateAuction(AuctionCreateRequest request);
-    AuctionResponse GetAuctionById(Guid id);
-    void UpdateAuction(Guid id, AuctionUpdateRequest request);
-    void DeleteAuction(Guid id);
-}
-
-public class AuctionService : IAuctionService {
-    private static List<Auction> _storage = [];
-
-    public List<AuctionResponse> GetPastAuctions() {
-        var auctions = _storage
-            .Where(a => a.Finish < DateTime.Now)
-            .Select(auction => new AuctionResponse(auction.Id, auction.Title, auction.Start, auction.Finish))
-            .OrderByDescending(a => a.Start)
-            .ToList();
-
-        return auctions;
-    }
-    
-    public List<AuctionResponse> GetActiveAuctions() {
-        var auctions = _storage
-            .Where(a => a.Start < DateTime.Now && a.Finish > DateTime.Now)
-            .Select(auction => new AuctionResponse(auction.Id, auction.Title, auction.Start, auction.Finish))
-            .OrderByDescending(a => a.Start)
-            .ToList();
-
-        return auctions;
-    }
-    
-    public List<AuctionResponse> GetFutureAuctions() {
-        var auctions = _storage
-            .Where(a => a.Start > DateTime.Now)
-            .Select(auction => new AuctionResponse(auction.Id, auction.Title, auction.Start, auction.Finish))
-            .OrderByDescending(a => a.Start)
-            .ToList();
-
-        return auctions;
+namespace SothbeysKillerApi.Services
+{
+    public interface IAuctionService
+    {
+        Task<List<AuctionResponse>> GetPastAuctionsAsync();
+        Task<List<AuctionResponse>> GetActiveAuctionsAsync();
+        Task<List<AuctionResponse>> GetFutureAuctionsAsync();
+        Task<Guid> CreateAuctionAsync(AuctionCreateRequest request);
+        Task<AuctionResponse> GetAuctionByIdAsync(Guid id);
+        Task UpdateAuctionAsync(Guid id, AuctionUpdateRequest request);
+        Task DeleteAuctionAsync(Guid id);
     }
 
-    public Guid CreateAuction(AuctionCreateRequest request) {
-        if (request.Title.Length < 3 || request.Title.Length > 255)
+    public class AuctionService : IAuctionService
+    {
+        private readonly IUnitOfWork _unitOfWork;
+
+        public AuctionService(IUnitOfWork unitOfWork)
         {
-            throw new ArgumentException();
+            _unitOfWork = unitOfWork;
         }
 
-        if (request.Start < DateTime.Now)
+        public async Task<List<AuctionResponse>> GetPastAuctionsAsync()
         {
-            throw new ArgumentException();
+            var auctions = await _unitOfWork.AuctionRepository.GetPastAsync();
+            return auctions.Select(a => new AuctionResponse(a.Id, a.Title, a.Start, a.Finish))
+                          .OrderByDescending(a => a.Start)
+                          .ToList();
         }
 
-        if (request.Finish <= request.Start)
+        public async Task<List<AuctionResponse>> GetActiveAuctionsAsync()
         {
-            throw new ArgumentException();
+            var auctions = await _unitOfWork.AuctionRepository.GetActiveAsync();
+            return auctions.Select(a => new AuctionResponse(a.Id, a.Title, a.Start, a.Finish))
+                          .OrderByDescending(a => a.Start)
+                          .ToList();
         }
-        
-        var auction = new Auction()
+
+        public async Task<List<AuctionResponse>> GetFutureAuctionsAsync()
         {
-            Id = Guid.NewGuid(),
-            Title = request.Title,
-            Start = request.Start,
-            Finish = request.Finish
-        };
-        
-        _storage.Add(auction);
-
-        return auction.Id;
-    }
-
-    public AuctionResponse GetAuctionById(Guid id) {
-        var auction = _storage.FirstOrDefault(a => a.Id == id);
-
-        if (auction is not null) {
-            var response = new AuctionResponse(auction.Id, auction.Title, auction.Start, auction.Finish);
-            
-            return response;
+            var auctions = await _unitOfWork.AuctionRepository.GetFutureAsync();
+            return auctions.Select(a => new AuctionResponse(a.Id, a.Title, a.Start, a.Finish))
+                          .OrderByDescending(a => a.Start)
+                          .ToList();
         }
 
-        throw new NullReferenceException();
-    }
+        public async Task<Guid> CreateAuctionAsync(AuctionCreateRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Title) || request.Title.Length < 3 || request.Title.Length > 255)
+            {
+                throw new UserValidationException("Title", "Title must be between 3 and 255 characters.");
+            }
 
-    public void UpdateAuction(Guid id, AuctionUpdateRequest request) {
-        var auction = _storage.FirstOrDefault(a => a.Id == id);
-        
-        if (auction is null) {
-            throw new NullReferenceException();
+            if (request.Start < DateTime.Now)
+            {
+                throw new UserValidationException("Start", "Start date cannot be in the past.");
+            }
+
+            if (request.Finish <= request.Start)
+            {
+                throw new UserValidationException("Finish", "Finish date must be after start date.");
+            }
+
+            var auction = new Auction
+            {
+                Id = Guid.NewGuid(),
+                Title = request.Title,
+                Start = request.Start,
+                Finish = request.Finish
+            };
+
+            await _unitOfWork.AuctionRepository.CreateAsync(auction);
+            await _unitOfWork.CommitAsync();
+
+            return auction.Id;
         }
 
-        if (auction.Start <= DateTime.Now) {
-            throw new ArgumentException();
-        }
-        
-        if (request.Start < DateTime.Now) {
-            throw new ArgumentException();
+        public async Task<AuctionResponse> GetAuctionByIdAsync(Guid id)
+        {
+            var auction = await _unitOfWork.AuctionRepository.GetByIdAsync(id);
+            if (auction == null)
+            {
+                throw new UserNotFoundException("Id", $"Auction with ID {id} not found.");
+            }
+
+            return new AuctionResponse(auction.Id, auction.Title, auction.Start, auction.Finish);
         }
 
-        if (request.Finish <= request.Start) {
-            throw new ArgumentException();
+        public async Task UpdateAuctionAsync(Guid id, AuctionUpdateRequest request)
+        {
+            var auction = await _unitOfWork.AuctionRepository.GetByIdAsync(id);
+            if (auction == null)
+            {
+                throw new UserNotFoundException("Id", $"Auction with ID {id} not found.");
+            }
+
+            if (auction.Start <= DateTime.Now)
+            {
+                throw new UserValidationException("Start", "Cannot update an auction that has already started.");
+            }
+
+            if (request.Start < DateTime.Now)
+            {
+                throw new UserValidationException("Start", "Start date cannot be in the past.");
+            }
+
+            if (request.Finish <= request.Start)
+            {
+                throw new UserValidationException("Finish", "Finish date must be after start date.");
+            }
+
+            auction.Start = request.Start;
+            auction.Finish = request.Finish;
+
+            await _unitOfWork.AuctionRepository.UpdateAsync(auction);
+            await _unitOfWork.CommitAsync();
         }
 
-        auction.Start = request.Start;
-        auction.Finish = request.Finish;
-    }
+        public async Task DeleteAuctionAsync(Guid id)
+        {
+            var auction = await _unitOfWork.AuctionRepository.GetByIdAsync(id);
+            if (auction == null)
+            {
+                throw new UserNotFoundException("Id", $"Auction with ID {id} not found.");
+            }
 
-    public void DeleteAuction(Guid id) {
-        var auction = _storage.FirstOrDefault(a => a.Id == id);
-        
-        if (auction is null) {
-            throw new NullReferenceException();
+            if (auction.Start <= DateTime.Now)
+            {
+                throw new UserValidationException("Start", "Cannot delete an auction that has already started.");
+            }
+
+            await _unitOfWork.AuctionRepository.DeleteAsync(auction);
+            await _unitOfWork.CommitAsync();
         }
-        
-        if (auction.Start <= DateTime.Now) {
-            throw new ArgumentException();
-        }
-        _storage.Remove(auction);
     }
 }

@@ -1,58 +1,57 @@
-﻿using Npgsql;
-using System.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using SothbeysKillerApi.Context;
 
-namespace SothbeysKillerApi.Repository {
-    public class UnitOfWork : IUnitOfWork, IDisposable {
-        private readonly IDbConnection _dbConnection;
-        private readonly IDbTransaction _transaction;
+namespace SothbeysKillerApi.Repository
+{
+    public class EFUnitOfWork : IUnitOfWork, IDisposable
+    {
+        private readonly UserDBContext _context;
+        private bool _disposed;
+        private IUserRepository _userRepository;
+        private IAuctionRepository _auctionRepository;
+        private IAuctionHistoryRepository _auctionHistoryRepository;
 
-        public IUserRepository UserRepository { get; }
-        public IAuctionRepository AuctionRepository { get; }
-        public IAuctionHistoryRepository AuctionHistoryRepository { get; }
-
-        public UnitOfWork() {
-            _dbConnection = new NpgsqlConnection("Server=localhost;Port=5432;Database=auction_db;Username=postgres;Password=123456");
-            _dbConnection.Open();
-
-            _transaction = _dbConnection.BeginTransaction();
-
-            UserRepository = new DbUserRepostory(_dbConnection, _transaction);
-            AuctionRepository = new DbAuctionRepository(_dbConnection, _transaction);
-            AuctionHistoryRepository = new DbAuctionHistoryRepository(_dbConnection, _transaction);
+        public EFUnitOfWork(UserDBContext context)
+        {
+            _context = context;
         }
 
-        public void Commit() {
-            try
-            {
-                _transaction.Commit();
-            }
-            catch (Exception e)
-            {
-                _transaction.Rollback();
-            }
-            finally
-            {
-                _transaction.Dispose();
-                _dbConnection.Dispose();
-            }
+        public IUserRepository UserRepository => 
+            _userRepository ??= new EFUserRepository(_context);
+
+        public IAuctionRepository AuctionRepository => 
+            _auctionRepository ??= new EFAuctionRepository(_context);
+
+        public IAuctionHistoryRepository AuctionHistoryRepository => 
+            _auctionHistoryRepository ??= new EFAuctionHistoryRepository(_context);
+
+        public async Task CommitAsync()
+        {
+            await _context.SaveChangesAsync();
         }
 
-        public void Rollback() {
-            _transaction.Rollback();
+        public async Task RollbackAsync()
+        {
+            // Автоматичний відкат змін, якщо SaveChanges не викликано
+            await _context.Database.CurrentTransaction?.RollbackAsync();
         }
 
-        public void Dispose() {
-            try
-            {
-                _transaction.Rollback();
-                _transaction.Dispose();
-            }
-            catch (ObjectDisposedException)
-            {
-                Console.WriteLine("Transaction already disposed.");
-            }
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-            _dbConnection.Dispose();
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    _context.Dispose();
+                }
+                _disposed = true;
+            }
         }
     }
 }

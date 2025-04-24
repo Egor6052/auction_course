@@ -1,27 +1,31 @@
 using Microsoft.EntityFrameworkCore;
+using SothbeysKillerApi.Context;
 using SothbeysKillerApi.Controllers;
-using SothbeysKillerApi.Infrastructure;
 
-namespace SothbeysKillerApi.Repository {
-    public class EFUserRepository : IUserRepository {
-        private readonly DbSet<User> _dbSet;
-        private readonly IChangeSaver _context;
+namespace SothbeysKillerApi.Repository
+{
+    public class EFUserRepository : IUserRepository
+    {
+        private readonly UserDBContext _context;
 
-        public EFUserRepository(DbSet<User> dbSet, IChangeSaver context) {
-            _dbSet = dbSet;
+        public EFUserRepository(UserDBContext context)
+        {
             _context = context;
         }
-        public void Create(User entity) {
-            _dbSet.Add(entity);
-            _context.SaveChanges();
+
+        public async Task CreateAsync(User entity)
+        {
+            await _context.Users.AddAsync(entity);
         }
 
-        public bool EmailExist(string email) {
-            return _dbSet.Any(u => u.Email == email); ;
+        public async Task<bool> EmailExistAsync(string email)
+        {
+            return await _context.Users.AnyAsync(u => u.Email == email);
         }
 
-        public User? Signin(string email) {
-            return _dbSet.SingleOrDefault(u => u.Email == email);
+        public async Task<User?> SigninAsync(string email)
+        {
+            return await _context.Users.SingleOrDefaultAsync(u => u.Email == email);
         }
     }
 }

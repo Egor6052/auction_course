@@ -11,14 +11,19 @@
 ```sh
 dotnet build
 ```
-For run, going to the build directory ```cd ./NameProject```, and:
+For run, going to the build directory ```cd ./SothbeysKillerApi```, and:
 ```sh
 dotnet run
 ```
 
 ### Installing SDK and runtime machine
 ---
-For installing SDK in Fedora Linux: 
+MacOS installing SDK:
+```sh
+brew install --cask dotnet-sdk@9
+```
+
+Fedora Linux installing SDK: 
 ```sh
 sudo dnf install dotnet-sdk-9.0
 ```
